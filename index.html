@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>שורשי עמי | דניאל כהנמן</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f4f1ea;
+        --card: #fffdf9;
+        --ink: #20292e;
+        --muted: #667178;
+        --line: #ddd7cd;
+        --accent: #c96445;
+        --accent-strong: #a84d32;
+        --accent-soft: #f1ddd5;
+        --ok: #d9e8db;
+        --ok-ink: #2e6942;
+        --radius-xl: 28px;
+        --radius-lg: 18px;
+        --shadow: 0 20px 48px rgba(32, 41, 46, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Heebo", sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+      }
+
+      .shell {
+        width: min(760px, calc(100% - 24px));
+        margin: 0 auto;
+        padding: 18px 0 42px;
+      }
+
+      .progress {
+        display: flex;
+        gap: 8px;
+        margin: 0 0 16px;
+      }
+
+      .track {
+        flex: 1;
+        height: 8px;
+        border-radius: 999px;
+        background: #dfdbd2;
+        overflow: hidden;
+      }
+
+      .fill {
+        width: 0%;
+        height: 100%;
+        background: var(--accent);
+        transition: width 180ms ease;
+      }
+
+      .screen {
+        display: none;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius-xl);
+        background: var(--card);
+        box-shadow: var(--shadow);
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 7px 12px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent-strong);
+        font-size: 0.86rem;
+        font-weight: 800;
+      }
+
+      h1,
+      h2 {
+        margin: 14px 0 10px;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+
+      h1 {
+        font-size: clamp(2.2rem, 8vw, 4rem);
+      }
+
+      h2 {
+        font-size: clamp(1.8rem, 6vw, 2.8rem);
+      }
+
+      p {
+        margin: 0;
+        line-height: 1.7;
+      }
+
+      .lede,
+      .small,
+      .source-note {
+        color: var(--muted);
+      }
+
+      .lede {
+        margin-top: 8px;
+        font-size: 1.02rem;
+      }
+
+      .facts,
+      .choices,
+      .sources {
+        display: grid;
+        gap: 12px;
+      }
+
+      .facts {
+        margin-top: 18px;
+      }
+
+      .fact,
+      .panel,
+      .source-item {
+        padding: 16px;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--line);
+        background: #fff;
+      }
+
+      .fact strong,
+      .panel strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      .question-wrap {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .choices {
+        margin-top: 14px;
+      }
+
+      button {
+        appearance: none;
+        border: 0;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .choice,
+      .nav-button,
+      .retry-button {
+        width: 100%;
+        padding: 14px 16px;
+        border-radius: 16px;
+        font-weight: 700;
+      }
+
+      .choice {
+        text-align: right;
+        color: var(--ink);
+        background: #f6f2eb;
+        border: 1px solid #d9d3c8;
+      }
+
+      .choice.correct {
+        background: var(--ok);
+        color: var(--ok-ink);
+        border-color: #bdd3c0;
+      }
+
+      .choice.wrong {
+        background: #f5dfd6;
+        color: #933f29;
+        border-color: #e5b7a9;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+
+      .nav-button,
+      .retry-button {
+        width: auto;
+        padding-inline: 18px;
+      }
+
+      .nav-button {
+        color: white;
+        background: var(--accent);
+      }
+
+      .retry-button {
+        color: var(--accent-strong);
+        background: var(--accent-soft);
+      }
+
+      .result {
+        display: none;
+        margin-top: 14px;
+      }
+
+      .result.visible {
+        display: block;
+      }
+
+      .feedback {
+        margin-bottom: 8px;
+        font-weight: 800;
+      }
+
+      .feedback.good {
+        color: var(--ok-ink);
+      }
+
+      .feedback.bad {
+        color: var(--accent-strong);
+      }
+
+      .finish-title {
+        font-size: clamp(2rem, 7vw, 3.4rem);
+      }
+
+      .sources {
+        margin-top: 20px;
+      }
+
+      .source-item a {
+        color: var(--accent-strong);
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(100% - 14px, 100%);
+          padding-top: 10px;
+        }
+
+        .screen {
+          padding: 18px;
+          border-radius: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <div class="progress" aria-label="התקדמות בחידון">
+        <div class="track"><div class="fill" id="progress-1"></div></div>
+        <div class="track"><div class="fill" id="progress-2"></div></div>
+        <div class="track"><div class="fill" id="progress-3"></div></div>
+      </div>
+
+      <section class="screen active" data-screen="intro">
+        <div class="eyebrow">שורשי עמי</div>
+        <h1>דניאל כהנמן</h1>
+        <p class="lede">
+          קודם כמה פרטים קצרים מהמצגת, ואז 3 שאלות על ניסויים מפורסמים שלו.
+        </p>
+
+        <div class="facts">
+          <div class="fact">
+            <strong>מגישים</strong>
+            איתן קלין כיתה 8<br />
+            דויד כיתה 8<br />
+            מקס כיתה 7<br />
+            פבל סדיקוב כיתה 10
+          </div>
+          <div class="fact">
+            <strong>השם</strong>
+            דניאל כהנמן.
+          </div>
+          <div class="fact">
+            <strong>מידע עליו</strong>
+            הוא נולד בתל אביב בשנת 1934, היה פסיכולוג וכלכלן, וקיבל פרס נובל
+            בכלכלה בשנת 2002.
+          </div>
+          <div class="fact">
+            <strong>מה הוא חקר</strong>
+            הוא חקר איך אנשים חושבים, זוכרים, ומקבלים החלטות.
+          </div>
+          <div class="fact">
+            <strong>מה למדתי ממנו</strong>
+            גם אנשים חכמים לא תמיד מחליטים בצורה מושלמת, ולכן חשוב לבדוק החלטות.
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="nav-button" type="button" data-go="1">נתחיל</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="1" data-solved="false">
+        <div class="eyebrow">שאלה 1 מתוך 3</div>
+        <h2>ניסוי העוגן</h2>
+        <p class="lede">
+          אנשים ראו מספר נמוך או גבוה בגלגל מזל, ואז העריכו כמה מדינות באפריקה יש
+          באו״ם.
+        </p>
+
+        <div class="question-wrap">
+          <div class="panel">
+            <strong>השאלה</strong>
+            איזו קבוצה נתנה הערכות גבוהות יותר?
+            <div class="choices">
+              <button class="choice" type="button" data-correct="false">
+                הקבוצה שראתה מספר נמוך
+              </button>
+              <button class="choice" type="button" data-correct="true">
+                הקבוצה שראתה מספר גבוה
+              </button>
+            </div>
+          </div>
+
+          <div class="panel result">
+            <div class="feedback"></div>
+            <p>
+              התוצאה: המספר האקראי השפיע. מי שראה מספר גבוה נתן בדרך כלל תשובות
+              גבוהות יותר.
+            </p>
+            <p class="small">
+              אחר כך חזרו על האפקט הזה גם במחקרים על מחירים, ענישה ומשא ומתן.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="2" data-solved="false">
+        <div class="eyebrow">שאלה 2 מתוך 3</div>
+        <h2>ניסוי המסגור</h2>
+        <p class="lede">
+          אנשים קיבלו אותה בעיה בדיוק על מחלה מסוכנת, אבל בניסוח שונה: הצלה או
+          מוות.
+        </p>
+
+        <div class="question-wrap">
+          <div class="panel">
+            <strong>השאלה</strong>
+            מי בחרו יותר באפשרות המסוכנת?
+            <div class="choices">
+              <button class="choice" type="button" data-correct="false">
+                הקבוצה ששמעה ניסוח של הצלה
+              </button>
+              <button class="choice" type="button" data-correct="true">
+                הקבוצה ששמעה ניסוח של מוות
+              </button>
+            </div>
+          </div>
+
+          <div class="panel result">
+            <div class="feedback"></div>
+            <p>
+              התוצאה: כשדיברו על הפסד, יותר אנשים הסכימו לקחת סיכון. כשדיברו על
+              רווח, יותר אנשים העדיפו ודאות.
+            </p>
+            <p class="small">
+              זאת דוגמה מפורסמת לכך שניסוח שונה יכול לשנות החלטה.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="3" data-solved="false">
+        <div class="eyebrow">שאלה 3 מתוך 3</div>
+        <h2>היד במי קרח</h2>
+        <p class="lede">
+          פעם אחת היד הייתה במים קרים מאוד ל-60 שניות. בפעם השנייה היה עוד חצי
+          דקה, אבל הסוף היה קצת פחות כואב.
+        </p>
+
+        <div class="question-wrap">
+          <div class="panel">
+            <strong>השאלה</strong>
+            איזו חוויה יותר אנשים הסכימו לחזור עליה?
+            <div class="choices">
+              <button class="choice" type="button" data-correct="false">
+                החוויה הקצרה יותר
+              </button>
+              <button class="choice" type="button" data-correct="true">
+                החוויה הארוכה יותר
+              </button>
+            </div>
+          </div>
+
+          <div class="panel result">
+            <div class="feedback"></div>
+            <p>
+              התוצאה: הרבה אנשים העדיפו לחזור על החוויה הארוכה יותר, כי היא
+              הסתיימה קצת יותר טוב.
+            </p>
+            <p class="small">
+              זה קשור ל״כלל השיא-סוף״: אנחנו זוכרים חוויה בעיקר לפי השיא ולפי הסוף.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="finish">
+        <div class="eyebrow">סיום</div>
+        <h2 class="finish-title">כל הכבוד, זכית בפרס נובל</h2>
+        <p class="lede">
+          ענית נכון על כל 3 השאלות. עכשיו אתם כבר יודעים למה כהנמן היה כל כך
+          חשוב.
+        </p>
+
+        <div class="facts">
+          <div class="fact">
+            <strong>בקצרה</strong>
+            כהנמן הראה שאנשים לא תמיד חושבים בצורה רציונלית, ושאפשר למדוד את זה
+            בניסויים פשוטים.
+          </div>
+        </div>
+
+        <div class="sources">
+          <div class="source-item">
+            Tversky &amp; Kahneman, 1974,
+            <a href="https://doi.org/10.1126/science.185.4157.1124">
+              Judgment under Uncertainty: Heuristics and Biases
+            </a>
+          </div>
+          <div class="source-item">
+            Tversky &amp; Kahneman, 1981,
+            <a href="https://doi.org/10.1126/science.7455683">
+              The Framing of Decisions and the Psychology of Choice
+            </a>
+          </div>
+          <div class="source-item">
+            Kahneman, Fredrickson, Schreiber &amp; Redelmeier, 1993,
+            <a href="https://doi.org/10.1111/j.1467-9280.1993.tb00589.x">
+              When More Pain Is Preferred to Less
+            </a>
+          </div>
+          <div class="source-item">
+            Redelmeier, Katz &amp; Kahneman, 2003,
+            <a href="https://pubmed.ncbi.nlm.nih.gov/12855341/">
+              Memories of Colonoscopy: a randomized trial
+            </a>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="retry-button" type="button" id="restart">
+            להתחיל שוב
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const screenOrder = ["intro", "1", "2", "3", "finish"];
+      const screens = new Map(
+        Array.from(document.querySelectorAll(".screen")).map((screen) => [
+          screen.dataset.screen,
+          screen,
+        ])
+      );
+      const progressBars = [1, 2, 3].map((id) =>
+        document.getElementById(`progress-${id}`)
+      );
+      const restartButton = document.getElementById("restart");
+
+      function showScreen(name) {
+        screenOrder.forEach((screenName) => {
+          screens.get(screenName).classList.toggle("active", screenName === name);
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function solvedCount() {
+        return ["1", "2", "3"].filter(
+          (name) => screens.get(name).dataset.solved === "true"
+        ).length;
+      }
+
+      function refreshProgress() {
+        progressBars.forEach((bar, index) => {
+          bar.style.width = index < solvedCount() ? "100%" : "0%";
+        });
+      }
+
+      function clearStep(stepName) {
+        const step = screens.get(stepName);
+        step.dataset.solved = "false";
+        step.querySelectorAll(".choice").forEach((button) => {
+          button.disabled = false;
+          button.classList.remove("correct", "wrong");
+        });
+        const result = step.querySelector(".result");
+        result.classList.remove("visible");
+        result.querySelector(".feedback").textContent = "";
+        result.querySelector(".feedback").className = "feedback";
+        step.querySelectorAll(".actions").forEach((node) => node.remove());
+      }
+
+      function resetAll() {
+        ["1", "2", "3"].forEach(clearStep);
+        refreshProgress();
+        showScreen("intro");
+      }
+
+      document.querySelectorAll("[data-go]").forEach((button) => {
+        button.addEventListener("click", () => {
+          showScreen(button.dataset.go);
+        });
+      });
+
+      ["1", "2", "3"].forEach((stepName, index) => {
+        const step = screens.get(stepName);
+        const buttons = Array.from(step.querySelectorAll(".choice"));
+        const result = step.querySelector(".result");
+        const feedback = result.querySelector(".feedback");
+
+        buttons.forEach((button) => {
+          button.addEventListener("click", () => {
+            const isCorrect = button.dataset.correct === "true";
+
+            buttons.forEach((item) => {
+              item.disabled = true;
+              item.classList.add(
+                item.dataset.correct === "true" ? "correct" : "wrong"
+              );
+            });
+
+            result.classList.add("visible");
+            feedback.textContent = isCorrect ? "נכון." : "לא נכון.";
+            feedback.classList.add(isCorrect ? "good" : "bad");
+
+            const oldActions = step.querySelector(".actions");
+            if (oldActions) {
+              oldActions.remove();
+            }
+
+            const actions = document.createElement("div");
+            actions.className = "actions";
+
+            if (isCorrect) {
+              step.dataset.solved = "true";
+              refreshProgress();
+
+              const nextButton = document.createElement("button");
+              nextButton.type = "button";
+              nextButton.className = "nav-button";
+              nextButton.textContent =
+                index === 2 ? "לסיום" : "לשאלה הבאה";
+              nextButton.addEventListener("click", () => {
+                showScreen(index === 2 ? "finish" : String(index + 2));
+              });
+              actions.appendChild(nextButton);
+            } else {
+              const retryButton = document.createElement("button");
+              retryButton.type = "button";
+              retryButton.className = "retry-button";
+              retryButton.textContent = "לנסות שוב";
+              retryButton.addEventListener("click", () => {
+                clearStep(stepName);
+              });
+              actions.appendChild(retryButton);
+            }
+
+            step.appendChild(actions);
+          });
+        });
+      });
+
+      restartButton.addEventListener("click", resetAll);
+      refreshProgress();
+    </script>
+  </body>
+</html>
